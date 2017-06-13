@@ -225,6 +225,7 @@ Required: No
  ---------- | --------- | -------------------------------------------------------------------------- | -------------
  name       | Yes       | Name of the variable                                                       | N/A
  action     | Yes       | Valid [function action](#function-actions).                                | N/A
+ 
  Additional attributes vary depending on the function action specified.
  
  #### Child Nodes
@@ -276,6 +277,7 @@ See [Field Types](#field-types) below for more details on the different options 
 Name     | Required? | Description                       | Default Value
 -------- | --------- | --------------------------------- | -------------
 type     | Yes       | Valid [Field Type](#field-types)  | N/A
+
 Additional attributes apply depending on field type.
 
 #### Child Nodes
@@ -305,6 +307,7 @@ Name     | Required? | Description                       | Default Value
 id       | yes       | Unique identifier for the command. Not displayed, only used for identifying in XML and logging. | N/A
 title    | no        | Friendly name of command for displaying the progress. | (blank)
 mode     | yes       | Valid [command mode](#command-modes) | N/A
+
 Additional attributes apply depending on command mode.
 
 #### Child Nodes
@@ -333,13 +336,17 @@ Additional attributes apply depending on command mode.
  
  ## Field types
 
-### Label
+### label
 
-### Input
+### input
 
-### Dropdown
+### dropdown
 
-### Radio
+### radio
 
 
 ## Command modes
+
+### save
+
+### execute
