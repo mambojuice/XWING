@@ -141,11 +141,11 @@ This is the root XML node in which all other objects are contained.
 None
 
 #### Child Nodes
-* General
-* Variables
-* Functions
-* Strings
-* Commands
+* [General](#node:-general)
+* [Variables](#node:-variables)
+* [Functions](#node:-functions)
+* [Strings](#node:-strings)
+* [Commands](#node:-commands)
 
  ### Node: General
  
@@ -168,15 +168,15 @@ None
  
  Required: No
  
- Store variables here that can be re-used anywhere within the definition file. Individual *variable* elements will be defined as children under the *variables* node.
+ Store variables here that can be re-used anywhere within the definition file. Individual *var* elements will be defined as children under the *variables* node.
  
  #### Attributes
  None
  
  #### Child Nodes
- * Variable
+ * [Var](#node:-var)
  
- ### Node: Variable
+ ### Node: Var
  
  Required: No
  
@@ -196,7 +196,7 @@ None
  Value of the variable. If both inner text and the "value" attribute are defined, inner text takes precedence.
  
  #### Child Nodes
- * None
+ None
 
 ### Node: Functions
 
@@ -208,9 +208,9 @@ Required: No
  None
  
  #### Child Nodes
- * Function
+ * [Func](#node:-func)
 
- ### Node: Function
+ ### Node: Func
  
  Required: No
  
@@ -224,11 +224,12 @@ Required: No
  Name       | Required? | Description                                                                | Default Value
  ---------- | --------- | -------------------------------------------------------------------------- | -------------
  name       | Yes       | Name of the variable                                                       | N/A
- action     | Yes       | Type of function. See [Variables and Functions](#variables-and-functions) below. Additional attributes vary depending on action. | N/A
+ action     | Yes       | Valid [function action](#function-actions).                                | N/A
+ Additional attributes vary depending on the function action specified.
  
  
  #### Child Nodes
- * None
+ None
 
 ### Node: Screens
 
@@ -246,7 +247,7 @@ Name   | Required? | Description                    | Default Value
 stage  | Yes       | Either "before" or "after"     | N/A
 
 #### Child Nodes
-* Screen
+* [Screen](#node:-screen)
 
 ### Node: Screen
 
@@ -262,7 +263,7 @@ title    | No        | Large text at the top of the screen. | (blank)
 subtitle | No        | Smaller text just below the title.   | (blank)
 
 #### Child Nodes
-* Field
+* [Field](#node:-field)
 
 ### Node: Field
 
@@ -273,18 +274,46 @@ Fields are components that make up the body of a screen. Any field that accepts 
 See [Field Types](#field-types) below for more details on the different options available for each field type.
 
 #### Attributes
+Name     | Required? | Description                       | Default Value
+-------- | --------- | --------------------------------- | -------------
+type     | Yes       | Valid [Field Type](#field-types)  | N/A
+Additional attributes apply depending on field type.
 
 #### Child Nodes
-* Option (only for certain field types)
+* [Option](#field-types) (only for certain field types)
 
 ### Node: Commands
 
+Required: No (but what's the point without it?)
+
+This is the root node for commands. Each command will be defined in a [command](#node:-command) child node.
+
+#### Attributes
+None
+
+#### Child Nodes
+* [Command](#node:-command)
+
 ### Node: Command
 
-## Field types
+Required: No
+
+Each command node defines an individual command to execute. Commands are not sorted by id or title, they are executed in the order in which they are defined.
+
+#### Attributes
+Name     | Required? | Description                       | Default Value
+-------- | --------- | --------------------------------- | -------------
+id       | yes       | Unique identifier for the command. Not displayed, only used for identifying in XML and logging. | N/A
+title    | no        | Friendly name of command for displaying the progress. | (blank)
+mode     | yes       | Valid [command mode](#command-modes) | N/A
+Additional attributes apply depending on command mode.
+
+#### Child Nodes
+* [Errormsg](#node:-errormsg)
 
 
  ## Variables and functions
+ ### Environment Variables
  
  ### Function Actions
  
@@ -302,3 +331,16 @@ See [Field Types](#field-types) below for more details on the different options 
  
  #### xml_value
  
+ 
+ ## Field types
+
+### Label
+
+### Input
+
+### Dropdown
+
+### Radio
+
+
+## Command modes
