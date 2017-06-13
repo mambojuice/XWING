@@ -141,11 +141,11 @@ This is the root XML node in which all other objects are contained.
 None
 
 #### Child Nodes
-* [General](#node:-general)
-* [Variables](#node:-variables)
-* [Functions](#node:-functions)
-* [Strings](#node:-strings)
-* [Commands](#node:-commands)
+* [General](#node-general)
+* [Variables](#node-variables)
+* [Functions](#node-functions)
+* [Strings](#node-strings)
+* [Commands](#node-commands)
 
  ### Node: General
  
@@ -174,7 +174,7 @@ None
  None
  
  #### Child Nodes
- * [Var](#node:-var)
+ * [Var](#node-var)
  
  ### Node: Var
  
@@ -208,7 +208,7 @@ Required: No
  None
  
  #### Child Nodes
- * [Func](#node:-func)
+ * [Func](#node-func)
 
  ### Node: Func
  
@@ -226,7 +226,6 @@ Required: No
  name       | Yes       | Name of the variable                                                       | N/A
  action     | Yes       | Valid [function action](#function-actions).                                | N/A
  Additional attributes vary depending on the function action specified.
- 
  
  #### Child Nodes
  None
@@ -247,7 +246,7 @@ Name   | Required? | Description                    | Default Value
 stage  | Yes       | Either "before" or "after"     | N/A
 
 #### Child Nodes
-* [Screen](#node:-screen)
+* [Screen](#node-screen)
 
 ### Node: Screen
 
@@ -263,7 +262,7 @@ title    | No        | Large text at the top of the screen. | (blank)
 subtitle | No        | Smaller text just below the title.   | (blank)
 
 #### Child Nodes
-* [Field](#node:-field)
+* [Field](#node-field)
 
 ### Node: Field
 
@@ -292,7 +291,7 @@ This is the root node for commands. Each command will be defined in a [command](
 None
 
 #### Child Nodes
-* [Command](#node:-command)
+* [Command](#node-command)
 
 ### Node: Command
 
@@ -309,7 +308,7 @@ mode     | yes       | Valid [command mode](#command-modes) | N/A
 Additional attributes apply depending on command mode.
 
 #### Child Nodes
-* [Errormsg](#node:-errormsg)
+* [Errormsg](#node-errormsg)
 
 
  ## Variables and functions
