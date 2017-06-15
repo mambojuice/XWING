@@ -315,7 +315,14 @@ Additional attributes apply depending on command mode.
 
 
  ## Variables and functions
+ 
  ### Environment Variables
+ Environment variables can be accessed by adding the "env:" prefix to your variable reference.
+ 
+ For example, to delete all items in the temp folder here is what a command may look like:
+ ```xml
+ <command id="clean_temp" mode="execute" path="[[env:comspec]] /c del [[env:temp]]*.* /q/s"/>
+ ```
  
  ### Function Actions
  
