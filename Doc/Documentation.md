@@ -7,10 +7,13 @@
 [Definition File Components](#definition-file-components)  
 [Variables and Functions](#variables-and-functions)
 
+-----
 
 ## Summary
 
-XWING is a tool for displaying a friendly user wizard based on an XML definition file.
+XWING is a tool for displaying a friendly user wizard based on an XML definition file. It can also launch commands using the user-provided input.
+
+-----
 
 ## Invoking XWING
 
@@ -27,6 +30,8 @@ This makes it easy to bundle XWing as part of a package. If the executable is re
 
 ### Path to XML file
 If you do not wish to package your XML along with the XWING executable, or if you are launching a definition file from another location, the path can be provided. The full path should be contained in quotes if there are any spaces in the file or folder names.
+
+-----
 
 ## Definition File
 There are four major components (XML nodes) to any definition file:
@@ -129,6 +134,8 @@ And here's a more advanced example:
 </wizard>
 ```
 
+-----
+
 ## Definition file components
 
 ### Node: Wizard
@@ -147,89 +154,89 @@ None
 * [Strings](#node-strings)
 * [Commands](#node-commands)
 
- ### Node: General
- 
- Required: Yes
- 
- This node defines the general settings for your wizard.
- 
- #### Attributes
- Name   | Required? | Description          | Default Value
- ------ | --------- | -------------------- | -------------
- title  | Yes       | Title of the wizard  | N/A
- log    | No        | Path to log file     | `%temp%\[definition file name]_[timestamp].log`
- width  | No        | Width of GUI window  | 640
- height | No        | Height of GUI window | 480
- 
- #### Child Nodes
- None
- 
- ### Node: Variables
- 
- Required: No
- 
- Store variables here that can be re-used anywhere within the definition file. Individual *var* elements will be defined as children under the *variables* node.
- 
- #### Attributes
- None
- 
- #### Child Nodes
- * [Var](#node-var)
- 
- ### Node: Var
- 
- Required: No
- 
- This node defines a single variable.
- 
- Variables are referenced elsewhere in the definition file by using `[[name]]` in place of part or all of a string.
- 
- If an undefined variable is referenced, an empty string will be returned.
- 
- #### Attributes
- Name  | Required? | Description                                                           | Default Value
- ----- | --------- | --------------------------------------------------------------------- | -------------
- name  | Yes       | Name of the variable                                                  | N/A
- value | No        | Value of the variable. _Not required if setting value in inner text._ | N/A
- 
- #### Inner text
- Value of the variable. If both inner text and the "value" attribute are defined, inner text takes precedence.
- 
- #### Child Nodes
- None
+### Node: General
+
+Required: Yes
+
+This node defines the general settings for your wizard.
+
+#### Attributes
+Name   | Required? | Description          | Default Value
+------ | --------- | -------------------- | -------------
+title  | Yes       | Title of the wizard  | N/A
+log    | No        | Path to log file     | `%temp%\[definition file name]_[timestamp].log`
+width  | No        | Width of GUI window  | 640
+height | No        | Height of GUI window | 480
+
+#### Child Nodes
+None
+
+### Node: Variables
+
+Required: No
+
+Store variables here that can be re-used anywhere within the definition file. Individual *var* elements will be defined as children under the *variables* node.
+
+#### Attributes
+None
+
+#### Child Nodes
+* [Var](#node-var)
+
+### Node: Var
+
+Required: No
+
+This node defines a single variable.
+
+Variables are referenced elsewhere in the definition file by using `[[name]]` in place of part or all of a string.
+
+If an undefined variable is referenced, an empty string will be returned.
+
+#### Attributes
+Name  | Required? | Description                                                           | Default Value
+----- | --------- | --------------------------------------------------------------------- | -------------
+name  | Yes       | Name of the variable                                                  | N/A
+value | No        | Value of the variable. _Not required if setting value in inner text._ | N/A
+
+#### Inner text
+Value of the variable. If both inner text and the "value" attribute are defined, inner text takes precedence.
+
+#### Child Nodes
+None
 
 ### Node: Functions
 
 Required: No
- 
- Store functions here that can be re-used anywhere within the definition file. Individual *function* elements will be defined as children of the *functions* node.
- 
- #### Attributes
- None
- 
- #### Child Nodes
- * [Func](#node-func)
 
- ### Node: Func
- 
- Required: No
- 
- This node defines a single function.
- 
- Function results are referenced elsewhere in the definition file by using `{{name}}` in place of part or all of a string.
- 
- If an undefined function is referenced, an empty string will be returned.
- 
- #### Attributes
- Name       | Required? | Description                                                                | Default Value
- ---------- | --------- | -------------------------------------------------------------------------- | -------------
- name       | Yes       | Name of the variable                                                       | N/A
- action     | Yes       | Valid [function action](#function-actions).                                | N/A
- 
- Additional attributes vary depending on the function action specified.
- 
- #### Child Nodes
- None
+Store functions here that can be re-used anywhere within the definition file. Individual *function* elements will be defined as children of the *functions* node.
+
+#### Attributes
+None
+
+#### Child Nodes
+* [Func](#node-func)
+
+### Node: Func
+
+Required: No
+
+This node defines a single function.
+
+Function results are referenced elsewhere in the definition file by using `{{name}}` in place of part or all of a string.
+
+If an undefined function is referenced, an empty string will be returned.
+
+#### Attributes
+Name       | Required? | Description                                                                | Default Value
+---------- | --------- | -------------------------------------------------------------------------- | -------------
+name       | Yes       | Name of the variable                                                       | N/A
+action     | Yes       | Valid [function action](#function-actions).                                | N/A
+
+Additional attributes vary depending on the function action specified.
+
+#### Child Nodes
+None
 
 ### Node: Screens
 
@@ -313,35 +320,96 @@ Additional attributes apply depending on command mode.
 #### Child Nodes
 * [Errormsg](#node-errormsg)
 
+#### Example
 
- ## Variables and functions
- 
- ### Environment Variables
- Environment variables can be accessed by adding the "env:" prefix to your variable reference.
- 
- For example, to delete all items in the temp folder here is what a command may look like:
- ```xml
- <command id="clean_temp" mode="execute" path="[[env:comspec]] /c del [[env:temp]]\*.* /q/s"/>
- ```
- 
- ### Function Actions
- 
- #### command_output
- 
- #### file_read
- 
- #### file_write
- 
- #### reg_read
- 
- #### math
- 
- #### strip_extra_space
- 
- #### xml_value
- 
- 
- ## Field types
+```xml
+<command id="msi_install" mode="execute" path="msiexec.exe" parameters="/qb /i myproduct.msi"/>
+```
+
+### Node: Errormsg
+
+Required: No
+
+If a command returns an error (non-zero exit code) a generic error message listing the command ID and exit code value will be displayed. This error message can be overridden by giving the command node an errormsg child. The message contents is the inner text of the errormsg node.
+
+#### Attributes
+None
+
+#### Child Nodes
+None
+
+#### Example
+
+```xml
+<command id="cleanup_windows_temp" mode="execute" path="[[env:comspec]]" parameters="/c del c:\windows\temp\*.* /q/s">
+	<errormsg>Unable to delete files from the Windows TEMP folder. Do you have admin permissions?</errormsg>
+</command>
+```
+
+-----
+
+## Variables and functions
+
+### Environment Variables
+Environment variables can be accessed by adding the "env:" prefix to your variable reference.
+
+For example, to delete all items in the temp folder here is what a command may look like:
+```xml
+<command id="clean_temp" mode="execute" path="[[env:comspec]] /c del [[env:temp]]\*.* /q/s"/>
+```
+
+### Function Actions
+
+#### builtin
+
+#### command_output
+
+Command_output will capture the output of an external command and return the results.
+
+IMPORTANT: Commands are executed as they are referenced, so it is possible to have a function return different values throughout your wizard. This may or may not be your intent!
+
+Additional attributes for command_output:
+
+Name | Required? | Description | Default Value
+---- | --------- | ----------- | -------------
+path | Yes       | Path to the command to execute | N/A
+TBD  |           |             |
+
+#### file_read
+
+File_read will read a plaintext file and save the results.
+
+Additional attributes for file_read:
+
+Name | Required? | Description              | Default Value
+---- | --------- | ------------------------ | -------------
+path | Yes       | Path to the file to read | N/A
+
+#### reg_read
+
+Reg_read will read the value of a registry key and return the results.
+
+_NOT YET IMPLEMENTED IN CODE_
+
+#### math
+
+Math will evaluate a mathematical function and return the result.
+
+The expression should be contained within the inner text of the <func> node.
+
+#### strip_extra_space
+
+Strip_extra_space will return the string it is passed, minus any leading and trailing spaces.
+
+The expression should be contained within the inner text of the <func> node.
+
+#### xml_value
+
+XML_value will return an XML value from file and a given XPATH.
+
+_NOT YET IMPLEMENTED IN CODE_
+
+## Field types
 
 ### label
 
@@ -356,4 +424,16 @@ Additional attributes apply depending on command mode.
 
 ### save
 
+Save will save a value to file.
+
 ### execute
+
+Execute will execute a file. Any non-zero exit code will be considered a failure unless additional valid exit codes are specified.
+
+Additional attributes for `<command mode="execute">`:
+
+Name       | Required? | Description                  | Default Value
+---------- | --------- | ---------------------------- | -------------
+path       | Yes       | Path to the executable       | N/A
+arguments  | No        | Additional arguments to pass | (blank)
+workingdir | No        | Working path where executable will run | Path where XWING is running
