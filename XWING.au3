@@ -14,17 +14,19 @@
 	AutoIt Version: 3.3.10.2
 	Author:         Chris Thayer
 
-	TO DO:
-	Functions
-	Sanitize saved XML
 
-	COMPLETED:
-	Build the UI
-	Set variable values
-	Retrieve variable values
-	Parse values
-	Command execution
-
+	LICENSE:
+	Copyright 2017, Chris Thayer
+	
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	A copy of the GNU General Public License is included in the
+	LICENSE file along with this program.
+	
+	
 	ATTRIBUTIONS:
 	Installer icon by Lokas
 	http://www.softicons.com/toolbar-icons/realistic-icons-by-lokas-software/install-icon
