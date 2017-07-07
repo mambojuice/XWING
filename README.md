@@ -13,3 +13,8 @@ Grab the latest binary from the Bin folder, or [download AutoIT](http://www.auto
 
 ## License
 XWING is released under the GPLv3 license. See the LICENSE file for full details.
+
+## Issues
+This program is not yet fully complete. Please do not expect all functions to be available (missing pieces are documented in the wiki).
+
+Please submit any non-documented issues to the [GitHub issue tracker](https://github.com/mambojuice/XWING/issues).
