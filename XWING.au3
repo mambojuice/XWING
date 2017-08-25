@@ -1,7 +1,8 @@
 #RequireAdmin
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=installer.ico
-#AutoIt3Wrapper_Res_Fileversion=0.9.0.15
+#AutoIt3Wrapper_Outfile=bin\XWING.exe
+#AutoIt3Wrapper_Res_Fileversion=0.9.0.20
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Run_Tidy=y
@@ -17,16 +18,16 @@
 
 	LICENSE:
 	Copyright 2017, Chris Thayer
-	
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
-	
+
 	A copy of the GNU General Public License is included in the
 	LICENSE file along with this program.
-	
-	
+
+
 	ATTRIBUTIONS:
 	Installer icon by Lokas
 	http://www.softicons.com/toolbar-icons/realistic-icons-by-lokas-software/install-icon
@@ -53,6 +54,7 @@ Global $iHeight = 480
 Global $oXML
 Global $sGraphic
 Global $sLogFile = @TempDir & "\" & StringLeft(@ScriptName, StringLen(@ScriptName) - 4) & "_" & @YEAR & @MON & @MDAY & ".log"
+Global $bSilent = False
 
 
 ; Constants for GUI building
@@ -103,13 +105,21 @@ Func XWINGInit()
 	; Must be 60x60 bitmap
 	FileInstall("installer_graphic.bmp", @TempDir & "\installer_graphic.bmp", 1)
 
+	; Default to using executable/script name for XML name
+	$sXMLFile = StringLeft(@ScriptName, StringLen(@ScriptName) - 4) & ".xml"
+
 	; Check if command line options were passed
 	If $cmdLine[0] > 0 Then
-		; Use file passed from command line
-		$sXMLFile = $cmdLine[1]
-	Else
-		; Use executable/script name
-		$sXMLFile = StringLeft(@ScriptName, StringLen(@ScriptName) - 4) & ".xml"
+		; Loop through command line options
+		For $x = 0 To $cmdLine[0]
+			; Check for silent switch
+			If StringLower($cmdLine[$x]) = "/silent" Then
+				$bSilent = True
+			Else
+				; If not silent switch, then our argument is an XML file to read
+				$sXMLFile = $cmdLine[1]
+			EndIf
+		Next
 	EndIf
 
 	; Verify our file is real
@@ -185,193 +195,198 @@ EndFunc   ;==>XWINGInit
 ; =============
 Func ShowScreens($stage)
 
-	WriteLog("")
-	WriteLog("Processing screens [Stage: " & $stage & "]")
-
-	$oScreens = $oXML.selectNodes("/wizard/screens[@stage='" & $stage & "']/screen")
-
-	If IsObj($oScreens) Then
-		$iScreens = $oScreens.Length
-
+	If $bSilent Then
 		WriteLog("")
-		WriteLog($iScreens & " screen(s) to show")
+		WriteLog("Running silently, skipping screens.")
+	Else
+		WriteLog("")
+		WriteLog("Processing screens [Stage: " & $stage & "]")
 
-		$iCount = 0
-		For $oScreen In $oScreens
-			$iCount += 1
-			$sID = $oScreen.getAttribute("id")
+		$oScreens = $oXML.selectNodes("/wizard/screens[@stage='" & $stage & "']/screen")
+
+		If IsObj($oScreens) Then
+			$iScreens = $oScreens.Length
 
 			WriteLog("")
-			WriteLog("Generating screen '" & $sID & "'")
+			WriteLog($iScreens & " screen(s) to show")
 
-			; Create the form object
-			$oForm = GUICreate($sTitle, $iWidth, $iHeight)
-
-			; Group for bottom buttons. Exceeds window by +2 to hide all borders except top
-			$grpFooter = GUICtrlCreateGroup("", -2, $iHeight - 57, $iWidth + 4, 59)
-
-			; Cancel button (appears on all screens)
-			$btnCancel = GUICtrlCreateButton("&Cancel", 10, $iHeight - 40, 80, 30)
-
-			; Back button (appears on all screens except first)
-			If ($iCount <> 1) Then
-				$btnBack = GUICtrlCreateButton("< &Back", $iWidth - 180, $iHeight - 40, 80, 30)
-			EndIf
-
-			; Finish button (appears on last screen)
-			$btnNext = GUICtrlCreateButton("&Next >", $iWidth - 90, $iHeight - 40, 80, 30)
-			GUICtrlSetState($btnNext, $GUI_ENABLE)
-
-			; Header elements
-			$gHeaderBG = GUICtrlCreateGraphic(0, 0, $iWidth, 60)
-			GUICtrlSetBkColor($gHeaderBG, 0xFFFFFF)
-			$grpHeader = GUICtrlCreateGroup("", -2, -15, $iWidth + 4, 77)
-			$gInstallerGraphic = GUICtrlCreatePic($sGraphic, $iWidth - 60, 0, 59, 59)
-
-			$lblTitle = GUICtrlCreateLabel("Title", 10, 10, $iWidth - 72, 30)
-			GUICtrlSetBkColor($lblTitle, 0xFFFFFF)
-			GUICtrlSetFont($lblTitle, 18, 600, 0, "Calibri")
-
-			$lblSubtitle = GUICtrlCreateLabel("Subtitle", 10, 40, $iWidth - 72, 15)
-			GUICtrlSetBkColor($lblSubtitle, 0xFFFFFF)
-			GUICtrlSetFont($lblSubtitle, 10, 400, 0, "Calibri")
-			GUISetState(@SW_SHOW, $oForm)
-
-			; Populate form with elements from XML
-			GUICtrlSetData($lblTitle, Parse($oScreen.getAttribute("title")))
-			GUICtrlSetData($lblSubtitle, Parse($oScreen.getAttribute("subtitle")))
-
-			; Generate fields
-			$aFields = ClearFields() ; Set to clean array
-
-			; aFields structure:
-			;	[0] = Variable that field will set
-			;	[1] = The GUI object handle
-			;	[2] = The object type
-			;   [3] = The object label
-
-			$iTop = 90 ; Starting position
 			$iCount = 0
-			For $oField In $oXML.selectNodes("/wizard/screens/screen[@id='" & $sID & "']/field")
-				$sType = Parse(StringLower($oField.getattribute("type")))
-
-				Select
-					Case $sType = "label"
-						$sLabelText = Parse($oField.getAttribute("text"))
-
-						; Calculate label height based on number of characters of text OR line breaks in string
-						If StringInStr($sLabelText, Chr(13)) Then
-							StringReplace($sLabelText, Chr(13), Chr(13))
-							$iLineCount = @extended ; Get number of lines
-							$iLabelHeight = $iLineCount * $CHARHEIGHT
-						Else
-							$iLabelHeight = (StringLen($sLabelText) * $CHARWIDTH) / ($iWidth - 60) * $CHARHEIGHT
-						EndIf
-						If $iLabelHeight < $CHARHEIGHT Then $iLabelHeight = $CHARHEIGHT ; One line minimum
-
-						GUICtrlCreateLabel($sLabelText, 30, $iTop, ($iWidth - 60), $iLabelHeight)
-
-						; Save field info to array
-						$aFields[$iCount][0] = ""
-						$aFields[$iCount][1] = ""
-						$aFields[$iCount][2] = $sType
-						$aFields[$iCount][3] = ""
-
-						$iTop += $iLabelHeight + $FIELDSPACING
-
-
-					Case $sType = "input"
-						$sVar = $oField.getAttribute("var")
-						$sLabelText = Parse($oField.getAttribute("label"))
-
-						GUICtrlCreateLabel($sLabelText, 30, $iTop + 2, ($iWidth / 3) - 60, $CHARHEIGHT)
-
-						; Save field info to array
-						$aFields[$iCount][0] = $sVar
-						$aFields[$iCount][1] = GUICtrlCreateInput("", ($iWidth / 3) - 30, $iTop, ($iWidth / 3 * 2) - 30, $FIELDHEIGHT)
-						$aFields[$iCount][2] = $sType
-						$aFields[$iCount][3] = $sLabelText
-
-						GUICtrlSetData(-1, GetVarValue($sVar))
-
-						$iTop += $FIELDHEIGHT + $FIELDSPACING
-
-					Case $sType = "dropdown"
-						$sVar = $oField.getAttribute("var")
-
-						; Get all values for dropdown
-						$sValues = ""
-						For $oNode In $oField.selectNodes("option")
-							$sValues = $sValues & $oNode.text & "|"
-						Next
-						StringTrimRight($sValues, 1) ; Remove trailing pipe
-
-						$sLabelText = Parse($oField.getAttribute("label"))
-						GUICtrlCreateLabel($sLabelText, 30, $iTop + 2, ($iWidth / 3) - 60, $CHARHEIGHT)
-
-						; Save field info to array
-						$aFields[$iCount][0] = $sVar
-						$aFields[$iCount][1] = GUICtrlCreateCombo("", ($iWidth / 3) - 30, $iTop, ($iWidth / 3 * 2) - 30, $FIELDHEIGHT, BitOR($CBS_SORT, $CBS_DROPDOWNLIST))
-						$aFields[$iCount][2] = $sType
-						$aFields[$iCount][3] = $sLabelText
-
-						GUICtrlSetData(-1, $sValues)
-
-						$iTop += $FIELDHEIGHT + $FIELDSPACING
-
-					Case $sType = "radio"
-						$sVar = $oField.getAttribute("var")
-
-						; Get number of radio values
-						$iRadioCount = $oField.selectNodes("option").length()
-						Dim $aRadio[$iRadioCount]
-
-						$sLabelText = Parse($oField.getAttribute("label"))
-						GUICtrlCreateLabel($sLabelText, 30, $iTop + 2, ($iWidth / 3) - 60, $FIELDHEIGHT)
-
-						$iRadioCount = 0
-						For $oOption In $oField.selectNodes("option")
-							$aRadio[$iRadioCount] = GUICtrlCreateRadio(Parse($oOption.text), ($iWidth / 3) - 30, $iTop, ($iWidth / 3 * 2) - 30, $FIELDHEIGHT)
-							$iTop += $FIELDHEIGHT
-							$iRadioCount += 1
-						Next
-
-						; Save field info to array
-						$aFields[$iCount][0] = $sVar
-						$aFields[$iCount][1] = $aRadio ; Array of radio buttons
-						$aFields[$iCount][2] = $sType
-						$aFields[$iCount][3] = $sLabelText
-
-						$iTop += $FIELDSPACING
-				EndSelect
-
-				; Increment count for aFields index
+			For $oScreen In $oScreens
 				$iCount += 1
+				$sID = $oScreen.getAttribute("id")
 
+				WriteLog("")
+				WriteLog("Generating screen '" & $sID & "'")
+
+				; Create the form object
+				$oForm = GUICreate($sTitle, $iWidth, $iHeight)
+
+				; Group for bottom buttons. Exceeds window by +2 to hide all borders except top
+				$grpFooter = GUICtrlCreateGroup("", -2, $iHeight - 57, $iWidth + 4, 59)
+
+				; Cancel button (appears on all screens)
+				$btnCancel = GUICtrlCreateButton("&Cancel", 10, $iHeight - 40, 80, 30)
+
+				; Back button (appears on all screens except first)
+				If ($iCount <> 1) Then
+					$btnBack = GUICtrlCreateButton("< &Back", $iWidth - 180, $iHeight - 40, 80, 30)
+				EndIf
+
+				; Finish button (appears on last screen)
+				$btnNext = GUICtrlCreateButton("&Next >", $iWidth - 90, $iHeight - 40, 80, 30)
+				GUICtrlSetState($btnNext, $GUI_ENABLE)
+
+				; Header elements
+				$gHeaderBG = GUICtrlCreateGraphic(0, 0, $iWidth, 60)
+				GUICtrlSetBkColor($gHeaderBG, 0xFFFFFF)
+				$grpHeader = GUICtrlCreateGroup("", -2, -15, $iWidth + 4, 77)
+				$gInstallerGraphic = GUICtrlCreatePic($sGraphic, $iWidth - 60, 0, 59, 59)
+
+				$lblTitle = GUICtrlCreateLabel("Title", 10, 10, $iWidth - 72, 30)
+				GUICtrlSetBkColor($lblTitle, 0xFFFFFF)
+				GUICtrlSetFont($lblTitle, 18, 600, 0, "Calibri")
+
+				$lblSubtitle = GUICtrlCreateLabel("Subtitle", 10, 40, $iWidth - 72, 15)
+				GUICtrlSetBkColor($lblSubtitle, 0xFFFFFF)
+				GUICtrlSetFont($lblSubtitle, 10, 400, 0, "Calibri")
+				GUISetState(@SW_SHOW, $oForm)
+
+				; Populate form with elements from XML
+				GUICtrlSetData($lblTitle, Parse($oScreen.getAttribute("title")))
+				GUICtrlSetData($lblSubtitle, Parse($oScreen.getAttribute("subtitle")))
+
+				; Generate fields
+				$aFields = ClearFields() ; Set to clean array
+
+				; aFields structure:
+				;	[0] = Variable that field will set
+				;	[1] = The GUI object handle
+				;	[2] = The object type
+				;   [3] = The object label
+
+				$iTop = 90 ; Starting position
+				$iCount = 0
+				For $oField In $oXML.selectNodes("/wizard/screens/screen[@id='" & $sID & "']/field")
+					$sType = Parse(StringLower($oField.getattribute("type")))
+
+					Select
+						Case $sType = "label"
+							$sLabelText = Parse($oField.getAttribute("text"))
+
+							; Calculate label height based on number of characters of text OR line breaks in string
+							If StringInStr($sLabelText, Chr(13)) Then
+								StringReplace($sLabelText, Chr(13), Chr(13))
+								$iLineCount = @extended ; Get number of lines
+								$iLabelHeight = $iLineCount * $CHARHEIGHT
+							Else
+								$iLabelHeight = (StringLen($sLabelText) * $CHARWIDTH) / ($iWidth - 60) * $CHARHEIGHT
+							EndIf
+							If $iLabelHeight < $CHARHEIGHT Then $iLabelHeight = $CHARHEIGHT ; One line minimum
+
+							GUICtrlCreateLabel($sLabelText, 30, $iTop, ($iWidth - 60), $iLabelHeight)
+
+							; Save field info to array
+							$aFields[$iCount][0] = ""
+							$aFields[$iCount][1] = ""
+							$aFields[$iCount][2] = $sType
+							$aFields[$iCount][3] = ""
+
+							$iTop += $iLabelHeight + $FIELDSPACING
+
+
+						Case $sType = "input"
+							$sVar = $oField.getAttribute("var")
+							$sLabelText = Parse($oField.getAttribute("label"))
+
+							GUICtrlCreateLabel($sLabelText, 30, $iTop + 2, ($iWidth / 3) - 60, $CHARHEIGHT)
+
+							; Save field info to array
+							$aFields[$iCount][0] = $sVar
+							$aFields[$iCount][1] = GUICtrlCreateInput("", ($iWidth / 3) - 30, $iTop, ($iWidth / 3 * 2) - 30, $FIELDHEIGHT)
+							$aFields[$iCount][2] = $sType
+							$aFields[$iCount][3] = $sLabelText
+
+							GUICtrlSetData(-1, GetVarValue($sVar))
+
+							$iTop += $FIELDHEIGHT + $FIELDSPACING
+
+						Case $sType = "dropdown"
+							$sVar = $oField.getAttribute("var")
+
+							; Get all values for dropdown
+							$sValues = ""
+							For $oNode In $oField.selectNodes("option")
+								$sValues = $sValues & $oNode.text & "|"
+							Next
+							StringTrimRight($sValues, 1) ; Remove trailing pipe
+
+							$sLabelText = Parse($oField.getAttribute("label"))
+							GUICtrlCreateLabel($sLabelText, 30, $iTop + 2, ($iWidth / 3) - 60, $CHARHEIGHT)
+
+							; Save field info to array
+							$aFields[$iCount][0] = $sVar
+							$aFields[$iCount][1] = GUICtrlCreateCombo("", ($iWidth / 3) - 30, $iTop, ($iWidth / 3 * 2) - 30, $FIELDHEIGHT, BitOR($CBS_SORT, $CBS_DROPDOWNLIST))
+							$aFields[$iCount][2] = $sType
+							$aFields[$iCount][3] = $sLabelText
+
+							GUICtrlSetData(-1, $sValues)
+
+							$iTop += $FIELDHEIGHT + $FIELDSPACING
+
+						Case $sType = "radio"
+							$sVar = $oField.getAttribute("var")
+
+							; Get number of radio values
+							$iRadioCount = $oField.selectNodes("option").length()
+							Dim $aRadio[$iRadioCount]
+
+							$sLabelText = Parse($oField.getAttribute("label"))
+							GUICtrlCreateLabel($sLabelText, 30, $iTop + 2, ($iWidth / 3) - 60, $FIELDHEIGHT)
+
+							$iRadioCount = 0
+							For $oOption In $oField.selectNodes("option")
+								$aRadio[$iRadioCount] = GUICtrlCreateRadio(Parse($oOption.text), ($iWidth / 3) - 30, $iTop, ($iWidth / 3 * 2) - 30, $FIELDHEIGHT)
+								$iTop += $FIELDHEIGHT
+								$iRadioCount += 1
+							Next
+
+							; Save field info to array
+							$aFields[$iCount][0] = $sVar
+							$aFields[$iCount][1] = $aRadio ; Array of radio buttons
+							$aFields[$iCount][2] = $sType
+							$aFields[$iCount][3] = $sLabelText
+
+							$iTop += $FIELDSPACING
+					EndSelect
+
+					; Increment count for aFields index
+					$iCount += 1
+
+				Next
+
+				WriteLog("Waiting for user input...")
+
+				; Input handling...
+				$bWait = True
+				While $bWait
+					$oMsg = GUIGetMsg()
+
+					Select
+						Case $oMsg = $GUI_EVENT_CLOSE ; Window closed
+							PromptCancel()
+						Case $oMsg = $btnCancel ; Cancel button
+							PromptCancel()
+						Case $oMsg = $btnNext ; Next button
+							If ValidateScreen($aFields) Then
+								GUICtrlSetState($btnNext, $GUI_DISABLE)
+								SaveScreenValues($aFields)
+								$bWait = False
+								GUISetState(@SW_HIDE, $oForm)
+							EndIf
+					EndSelect
+				WEnd
 			Next
-
-			WriteLog("Waiting for user input...")
-
-			; Input handling...
-			$bWait = True
-			While $bWait
-				$oMsg = GUIGetMsg()
-
-				Select
-					Case $oMsg = $GUI_EVENT_CLOSE ; Window closed
-						PromptCancel()
-					Case $oMsg = $btnCancel ; Cancel button
-						PromptCancel()
-					Case $oMsg = $btnNext ; Next button
-						If ValidateScreen($aFields) Then
-							GUICtrlSetState($btnNext, $GUI_DISABLE)
-							SaveScreenValues($aFields)
-							$bWait = False
-							GUISetState(@SW_HIDE, $oForm)
-						EndIf
-				EndSelect
-			WEnd
-		Next
+		EndIf
 	EndIf
 EndFunc   ;==>ShowScreens
 
@@ -382,7 +397,7 @@ EndFunc   ;==>ShowScreens
 ; AbortWithError
 ;
 ; Description:
-;	Aborts XWING with error code 1
+;	Aborts XWING with error code from last command (or 1 if internal error/not defined)
 ;	Logs error message
 ;
 ; Parameters:
@@ -391,10 +406,13 @@ EndFunc   ;==>ShowScreens
 ; Returns:
 ;	Nothing
 ; =============
-Func AbortWithError($Message)
-	MsgBox(16, "Error", $Message)
+Func AbortWithError($Message, $errorCode = 1)
+	If Not $bSilent Then
+		MsgBox(16, "Error", "(" & $errorCode & ") " & $Message)
+	EndIf
+
 	WriteLog($Message)
-	Exit -1
+	Exit ($errorCode)
 EndFunc   ;==>AbortWithError
 
 
@@ -657,7 +675,7 @@ Func RunCommands()
 								Else
 									$sErrorMsg = "Command " & $sID & " did not return a valid exit code!"
 								EndIf
-								AbortWithError($sErrorMsg)
+								AbortWithError($sErrorMsg, $ret)
 							EndIf
 						Else
 							;No additional exit codes specified, exit with error
@@ -666,7 +684,7 @@ Func RunCommands()
 							Else
 								$sErrorMsg = "Command " & $sID & " did not return a valid exit code!"
 							EndIf
-							AbortWithError($sErrorMsg)
+							AbortWithError($sErrorMsg, $ret)
 						EndIf
 					EndIf
 
