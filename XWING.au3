@@ -2,7 +2,7 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=installer.ico
 #AutoIt3Wrapper_Outfile=bin\XWING.exe
-#AutoIt3Wrapper_Res_Fileversion=0.9.0.21
+#AutoIt3Wrapper_Res_Fileversion=0.9.0.22
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Run_Tidy=y
@@ -111,7 +111,7 @@ Func XWINGInit()
 	; Check if command line options were passed
 	If $cmdLine[0] > 0 Then
 		; Loop through command line options
-		For $x = 0 To $cmdLine[0]
+		For $x = 1 To $cmdLine[0]
 			; Check for silent switch
 			If StringLower($cmdLine[$x]) = "/silent" Then
 				$bSilent = True
