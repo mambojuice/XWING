@@ -2,7 +2,7 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=installer.ico
 #AutoIt3Wrapper_Outfile=bin\XWING.exe
-#AutoIt3Wrapper_Res_Fileversion=0.9.0.20
+#AutoIt3Wrapper_Res_Fileversion=0.9.0.21
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Run_Tidy=y
@@ -117,7 +117,7 @@ Func XWINGInit()
 				$bSilent = True
 			Else
 				; If not silent switch, then our argument is an XML file to read
-				$sXMLFile = $cmdLine[1]
+				$sXMLFile = $cmdLine[$x]
 			EndIf
 		Next
 	EndIf
