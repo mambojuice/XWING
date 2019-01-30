@@ -9,7 +9,7 @@ See the [wiki](https://github.com/mambojuice/XWING/wiki) for detailed instructio
 Invoking XWING is as simple as creating a [definition file](https://github.com/mambojuice/XWING/wiki/Definition-File) and saving it alongside the EXE.
 
 ## Usage
-Grab the latest binary from the Bin folder, or [download AutoIT](http://www.autoitscript.com) and compile it yourself! No
+Grab the latest binary from the Bin folder, or [download AutoIT](http://www.autoitscript.com) and compile it yourself!
 
 ## License
 XWING is released under the GPLv3 license. See the LICENSE file for full details.
